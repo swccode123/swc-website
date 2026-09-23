@@ -194,6 +194,11 @@ strong {
 	font-weight: var(--weight-bold);
 }
 
+/* `hidden` must win over layout classes like .stack (display: flex) */
+[hidden] {
+	display: none !important;
+}
+
 a {
 	color: inherit;
 	text-underline-offset: 0.25em;
@@ -300,6 +305,18 @@ a {
 }
 
 /* ---- Type styles ------------------------------------------------------ */
+
+/* Display type, whatever element it's on */
+.t-display,
+.t-statement,
+.t-headline,
+.t-title,
+.t-heading {
+	font-family: var(--font-display);
+	font-weight: var(--weight-regular);
+	line-height: var(--leading-tight);
+	text-wrap: balance;
+}
 
 .t-display {
 	font-size: var(--text-5xl);

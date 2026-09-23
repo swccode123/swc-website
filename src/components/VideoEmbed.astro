@@ -8,6 +8,10 @@
  *   time visitors reach them.
  * - Visitors who prefer reduced motion get the same player without autoplay.
  * - `grow`: gently enlarges the player on hover (used for the hero reel).
+ *   The page can't reliably see the pointer once it's over a cross-site
+ *   iframe (Chrome drops :hover), so a transparent sensor over the player
+ *   detects entry, then lets clicks through to YouTube; the grow ends when
+ *   the pointer reappears anywhere else on the page.
  */
 interface Props {
 	id: string;
@@ -35,6 +39,7 @@ const embed = (autoplay: boolean) => {
 		allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
 		referrerpolicy="strict-origin-when-cross-origin"
 		allowfullscreen></iframe>
+	{grow && <span class="video__hover-sensor" aria-hidden="true"></span>}
 	<noscript>
 		<iframe
 			src={embed(false)}
@@ -51,6 +56,20 @@ const embed = (autoplay: boolean) => {
 	const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 	document.querySelectorAll<HTMLIFrameElement>('.video iframe[data-src-autoplay]').forEach((iframe) => {
 		iframe.src = (reduceMotion ? iframe.dataset.srcStill : iframe.dataset.srcAutoplay) ?? '';
+	});
+
+	// Hover tracking for `grow`
+	document.querySelectorAll<HTMLElement>('.video--grow').forEach((video) => {
+		const sensor = video.querySelector('.video__hover-sensor');
+		// Pointer arrives: grow, and the sensor stops catching the pointer
+		sensor?.addEventListener('pointerenter', (event) => {
+			if (event.pointerType === 'mouse') video.setAttribute('data-hover', '');
+		});
+		// Pointer is back on the page outside the player: shrink
+		document.addEventListener('pointerover', (event) => {
+			if (!video.contains(event.target as Node)) video.removeAttribute('data-hover');
+		});
+		document.documentElement.addEventListener('pointerleave', () => video.removeAttribute('data-hover'));
 	});
 </script>
 
@@ -72,15 +91,30 @@ const embed = (autoplay: boolean) => {
 		border: 0;
 	}
 
+	.video__hover-sensor {
+		display: none;
+	}
+
 	/* Hover grow, only on devices with a real pointer */
 	@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+		.video__hover-sensor {
+			display: block;
+			position: absolute;
+			inset: 0;
+			z-index: 1;
+		}
+
+		.video[data-hover] .video__hover-sensor {
+			pointer-events: none; /* clicks go through to YouTube */
+		}
+
 		.video--grow {
 			transition:
 				scale 0.6s var(--ease-in-out),
 				box-shadow 0.6s var(--ease-in-out);
 		}
 
-		.video--grow:hover {
+		.video--grow[data-hover] {
 			scale: 1.05;
 			box-shadow: 0 var(--space-3) var(--space-8) rgb(0 0 0 / 0.5);
 		}
