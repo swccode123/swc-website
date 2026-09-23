@@ -1,0 +1,28 @@
+---
+import VideoEmbed from './VideoEmbed.astro';
+
+const videos = [
+	{ id: 'Aq-64oTBU7I', caption: 'Client work for a showreel' },
+	{ id: 'Vl-zSD9KqaM', caption: 'Trailer for short film co-directed by me' },
+	{ id: 'YxJrwXr8KsI', caption: 'Self-produced short film for a client' },
+];
+---
+
+<section class="section section--alt" id="selected-works" aria-labelledby="works-title">
+	<div class="container">
+		<h2 id="works-title" class="t-headline section-header" data-reveal>Selected Works</h2>
+
+		<ul class="grid grid--3-lg list-reset" role="list">
+			{
+				videos.map((video) => (
+					<li data-reveal>
+						<figure class="stack">
+							<VideoEmbed id={video.id} title={video.caption} />
+							<figcaption class="caption">{video.caption}</figcaption>
+						</figure>
+					</li>
+				))
+			}
+		</ul>
+	</div>
+</section>

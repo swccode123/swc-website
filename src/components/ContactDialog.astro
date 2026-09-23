@@ -1,0 +1,354 @@
+---
+/**
+ * "Start a project" contact form in a modal dialog.
+ *
+ * - Any element with [data-contact-open] opens it. Those are links to the
+ *   enquiry email, so without JS they still work as a mailto fallback.
+ * - Uses the native <dialog> + showModal(): focus is trapped inside, the page
+ *   behind is inert, Escape closes it, and ::backdrop darkens the page.
+ * - Submits to Formspree with fetch, then shows a success or error message
+ *   without leaving the page.
+ */
+import { formEndpoint } from '../data/site';
+
+const messages = {
+	success: 'Thank you! Your submission has been received!',
+	error: 'Oops! Something went wrong while submitting the form.',
+};
+---
+
+<dialog class="contact" aria-labelledby="contact-title" data-contact-dialog>
+	<div class="contact__inner">
+		<button type="button" class="contact__close" data-contact-close>
+			<span aria-hidden="true">×</span>
+			<span class="visually-hidden">Close</span>
+		</button>
+
+		<div class="contact__form-view" data-contact-form-view>
+			<header class="stack contact__header">
+				<p class="eyebrow">Contact</p>
+				<h2 id="contact-title" class="t-title">Start a project</h2>
+				<p class="muted">
+					Tell me about your project and footage. I typically respond within one business day.
+				</p>
+			</header>
+
+			<form class="contact__form" action={formEndpoint} method="POST" data-contact-form>
+				<input type="hidden" name="_subject" value="New project enquiry from the website" />
+				<!-- Spam honeypot: hidden from people, filled in by bots -->
+				<div class="contact__honeypot" aria-hidden="true">
+					<label>Leave this empty <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" /></label>
+				</div>
+
+				<div class="contact__field">
+					<label for="contact-name">Name <span class="contact__required">(required)</span></label>
+					<input id="contact-name" name="name" type="text" autocomplete="name" required autofocus />
+				</div>
+
+				<div class="contact__field">
+					<label for="contact-email">Email <span class="contact__required">(required)</span></label>
+					<input id="contact-email" name="email" type="email" autocomplete="email" required />
+				</div>
+
+				<div class="contact__field">
+					<label for="contact-phone">Phone</label>
+					<input id="contact-phone" name="phone" type="tel" autocomplete="tel" />
+				</div>
+
+				<div class="contact__field">
+					<label for="contact-company">Company</label>
+					<input id="contact-company" name="company" type="text" autocomplete="organization" />
+				</div>
+
+				<div class="contact__field contact__field--full">
+					<label for="contact-details">Project details <span class="contact__required">(required)</span></label>
+					<p id="contact-details-hint" class="caption">Footage, format, deadline: whatever you have so far.</p>
+					<textarea id="contact-details" name="message" rows="5" required aria-describedby="contact-details-hint"
+					></textarea>
+				</div>
+
+				<p class="contact__error contact__field--full" role="alert" data-contact-error hidden>
+					{messages.error}
+				</p>
+
+				<div class="contact__field--full">
+					<button type="submit" class="btn contact__submit" data-contact-submit>Send enquiry</button>
+				</div>
+			</form>
+		</div>
+
+		<div class="stack contact__success" data-contact-success hidden>
+			<span class="contact__success-mark" aria-hidden="true">✓</span>
+			<p class="t-title" role="status">{messages.success}</p>
+			<button type="button" class="btn" data-contact-close>Close</button>
+		</div>
+	</div>
+</dialog>
+
+<script>
+	const dialog = document.querySelector<HTMLDialogElement>('[data-contact-dialog]');
+	const form = dialog?.querySelector<HTMLFormElement>('[data-contact-form]');
+	const formView = dialog?.querySelector<HTMLElement>('[data-contact-form-view]');
+	const success = dialog?.querySelector<HTMLElement>('[data-contact-success]');
+	const error = dialog?.querySelector<HTMLElement>('[data-contact-error]');
+	const submit = dialog?.querySelector<HTMLButtonElement>('[data-contact-submit]');
+
+	if (dialog && form && formView && success && error && submit) {
+		let opener: HTMLElement | null = null;
+
+		const showForm = () => {
+			formView.hidden = false;
+			success.hidden = true;
+			error.hidden = true;
+		};
+
+		// Open from any "Start a project" button (falls back to mailto without JS)
+		document.addEventListener('click', (event) => {
+			const trigger = (event.target as HTMLElement).closest<HTMLElement>('[data-contact-open]');
+			if (!trigger) return;
+			event.preventDefault();
+			opener = trigger;
+			if (!success.hidden) {
+				form.reset();
+				showForm();
+			}
+			dialog.showModal();
+		});
+
+		dialog.querySelectorAll('[data-contact-close]').forEach((button) =>
+			button.addEventListener('click', () => dialog.close()),
+		);
+
+		// Click on the darkened backdrop (outside the panel) closes it
+		dialog.addEventListener('click', (event) => {
+			if (event.target === dialog) dialog.close();
+		});
+
+		// Return focus to the button that opened it
+		dialog.addEventListener('close', () => opener?.focus());
+
+		form.addEventListener('submit', async (event) => {
+			event.preventDefault();
+			error.hidden = true;
+			submit.disabled = true;
+			submit.textContent = 'Sending…';
+
+			try {
+				const response = await fetch(form.action, {
+					method: 'POST',
+					body: new FormData(form),
+					headers: { Accept: 'application/json' },
+				});
+				if (!response.ok) throw new Error(`Formspree responded ${response.status}`);
+				form.reset();
+				formView.hidden = true;
+				success.hidden = false;
+				success.querySelector<HTMLButtonElement>('[data-contact-close]')?.focus();
+			} catch {
+				error.hidden = false;
+			} finally {
+				submit.disabled = false;
+				submit.textContent = 'Send enquiry';
+			}
+		});
+	}
+</script>
+
+<style>
+	/* Stop the page scrolling behind the open dialog */
+	:global(html:has(dialog[open])) {
+		overflow: hidden;
+	}
+
+	.contact {
+		width: min(40rem, 100% - var(--space-4));
+		max-height: calc(100dvh - var(--space-4));
+		padding: 0;
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius);
+		background: var(--color-bg-alt);
+		color: var(--color-text);
+		text-align: start;
+		overflow-y: auto;
+	}
+
+	.contact::backdrop {
+		background: rgb(0 0 0 / 0.78);
+		backdrop-filter: blur(4px);
+	}
+
+	@media (prefers-reduced-motion: no-preference) {
+		.contact[open] {
+			animation: contact-in 0.5s var(--ease-out);
+		}
+
+		.contact[open]::backdrop {
+			animation: backdrop-in 0.4s var(--ease-out);
+		}
+	}
+
+	@keyframes contact-in {
+		from {
+			opacity: 0;
+			translate: 0 var(--space-3);
+		}
+	}
+
+	@keyframes backdrop-in {
+		from {
+			opacity: 0;
+		}
+	}
+
+	.contact__inner {
+		position: relative;
+		padding: var(--space-6) var(--space-3) var(--space-4);
+	}
+
+	@media (min-width: 48rem) {
+		.contact__inner {
+			padding: var(--space-6);
+		}
+	}
+
+	.contact__close {
+		position: absolute;
+		top: var(--space-1);
+		right: var(--space-1);
+		display: grid;
+		place-items: center;
+		width: var(--tap-target);
+		height: var(--tap-target);
+		padding: 0;
+		border: 0;
+		border-radius: 50%;
+		background: none;
+		color: var(--color-text-muted);
+		font-size: var(--text-xl);
+		line-height: 1;
+		cursor: pointer;
+	}
+
+	.contact__close:hover {
+		color: var(--color-text);
+	}
+
+	.contact__header {
+		--stack-gap: var(--space-1);
+		margin-bottom: var(--space-4);
+		padding-right: var(--space-5); /* clear the close button */
+	}
+
+	/* Single column on phones; two columns from md for the short fields */
+	.contact__form {
+		display: grid;
+		gap: var(--space-3);
+	}
+
+	@media (min-width: 48rem) {
+		.contact__form {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+
+		.contact__field--full {
+			grid-column: 1 / -1;
+		}
+	}
+
+	.contact__field {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-1);
+	}
+
+	.contact__field label {
+		font-size: var(--text-sm);
+		font-weight: var(--weight-bold);
+	}
+
+	.contact__required {
+		font-weight: var(--weight-regular);
+		color: var(--color-text-muted);
+	}
+
+	.contact__field input,
+	.contact__field textarea {
+		width: 100%;
+		min-height: var(--tap-target);
+		padding: var(--space-1) var(--space-2);
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius);
+		background: var(--color-bg);
+		color: var(--color-text);
+		font: inherit;
+		transition: border-color 0.2s;
+	}
+
+	.contact__field textarea {
+		resize: vertical;
+		min-height: 8rem;
+	}
+
+	.contact__field input:hover,
+	.contact__field textarea:hover {
+		border-color: var(--color-text-muted);
+	}
+
+	.contact__field input:focus-visible,
+	.contact__field textarea:focus-visible {
+		border-color: var(--color-accent);
+	}
+
+	/* Only flag invalid fields after the visitor has interacted with them */
+	.contact__field input:user-invalid,
+	.contact__field textarea:user-invalid {
+		border-color: var(--color-error);
+	}
+
+	.contact__submit {
+		width: 100%;
+	}
+
+	@media (min-width: 30rem) {
+		.contact__submit {
+			width: auto;
+		}
+	}
+
+	.contact__submit:disabled {
+		opacity: 0.7;
+		cursor: progress;
+	}
+
+	.contact__error {
+		padding: var(--space-2);
+		border: 1px solid var(--color-error);
+		border-radius: var(--radius);
+		color: var(--color-text);
+		font-size: var(--text-sm);
+	}
+
+	.contact__success {
+		--stack-gap: var(--space-3);
+		align-items: center;
+		padding-block: var(--space-6);
+		text-align: center;
+	}
+
+	.contact__success-mark {
+		display: grid;
+		place-items: center;
+		width: var(--space-8);
+		height: var(--space-8);
+		border-radius: 50%;
+		background: var(--color-accent);
+		color: var(--color-on-accent);
+		font-size: var(--text-2xl);
+		font-weight: var(--weight-bold);
+	}
+
+	.contact__honeypot {
+		position: absolute;
+		left: -9999px;
+	}
+</style>

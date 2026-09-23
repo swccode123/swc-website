@@ -1,0 +1,47 @@
+---
+const steps = [
+	{
+		title: 'Tell me about your project',
+		text: "Send through your brief, footage, and deadline. We'll schedule a conversation.",
+	},
+	{
+		title: 'We align on the edit',
+		text: "I'll share a rough cut and refine it from your feedback until the story feels right.",
+	},
+	{
+		title: 'You receive a final cut',
+		text: "Delivered in your format, on time. A cut you're genuinely proud to share.",
+		emphasis: true,
+	},
+];
+---
+
+<section class="section" id="how-it-works" aria-labelledby="how-title">
+	<div class="container">
+		<h2 id="how-title" class="t-headline section-header" data-reveal>How it works</h2>
+
+		<ol class="grid grid--3 list-reset" role="list">
+			{
+				steps.map((step, i) => (
+					<li class="stack" data-reveal>
+						<span class="t-statement step__number" aria-hidden="true">
+							{String(i + 1).padStart(2, '0')}
+						</span>
+						<h3 class="t-heading">{step.emphasis ? <strong>{step.title}</strong> : step.title}</h3>
+						<p class="muted">{step.text}</p>
+					</li>
+				))
+			}
+		</ol>
+	</div>
+</section>
+
+<style>
+	.step__number {
+		display: block;
+		font-family: var(--font-display);
+		line-height: 1;
+		color: var(--color-accent);
+		margin-bottom: var(--space-1);
+	}
+</style>

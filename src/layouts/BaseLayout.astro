@@ -1,0 +1,74 @@
+---
+import '../styles/global.css';
+import ContactDialog from '../components/ContactDialog.astro';
+
+interface Props {
+	title: string;
+	description?: string;
+}
+
+const { title, description = '' } = Astro.props;
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="icon" href="/favicon.ico" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="generator" content={Astro.generator} />
+		<meta name="theme-color" content="#0f0f10" />
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			rel="stylesheet"
+			href="https://fonts.googleapis.com/css2?family=Arimo:wght@400;700&family=Newsreader:ital,opsz,wght@0,6..72,400..700;1,6..72,400..700&display=swap"
+		/>
+		{description && <meta name="description" content={description} />}
+		<title>{title}</title>
+		<!-- Flag JS before first paint so reveal animations never flash content -->
+		<script is:inline>
+			document.documentElement.classList.add('js');
+		</script>
+	</head>
+	<body>
+		<a class="skip-link" href="#main">Skip to content</a>
+		<slot />
+		<ContactDialog />
+
+		<!--
+			Scroll reveal: adds .is-revealed to [data-reveal] blocks as they enter the
+			viewport. Blocks arriving in the same batch (e.g. the hero on load, or a
+			row of cards) are staggered in document order.
+		-->
+		<script is:inline>
+			(() => {
+				const blocks = [...document.querySelectorAll('[data-reveal]')];
+				const reveal = (el) => el.classList.add('is-revealed');
+				if (!('IntersectionObserver' in window)) return blocks.forEach(reveal);
+
+				// Everything already on screen at load (the hero) animates in as one
+				// staggered sequence, including blocks at the very bottom edge
+				const onScreen = blocks.filter((el) => el.getBoundingClientRect().top < window.innerHeight);
+				onScreen.forEach((el, i) => {
+					el.style.setProperty('--reveal-delay', `calc(var(--reveal-stagger) * ${i})`);
+					requestAnimationFrame(() => reveal(el));
+				});
+
+				const observer = new IntersectionObserver(
+					(entries) => {
+						entries
+							.filter((entry) => entry.isIntersecting)
+							.forEach((entry, i) => {
+								entry.target.style.setProperty('--reveal-delay', `calc(var(--reveal-stagger) * ${i})`);
+								reveal(entry.target);
+								observer.unobserve(entry.target);
+							});
+					},
+					{ rootMargin: '0px 0px -10% 0px' },
+				);
+				blocks.filter((el) => !onScreen.includes(el)).forEach((el) => observer.observe(el));
+			})();
+		</script>
+	</body>
+</html>

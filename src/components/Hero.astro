@@ -1,0 +1,155 @@
+---
+import VideoEmbed from './VideoEmbed.astro';
+import { enquiryMailto } from '../data/site';
+
+const specs = [
+	{ label: 'Specialisation', value: 'DaVinci Resolve' },
+	{ label: 'Formats', value: '4K, RAW, BRAW, ProRes' },
+	{ label: 'Turnaround', value: '48hr standard', footnote: true },
+	{ label: 'Location', value: 'Brisbane + Remote' },
+];
+---
+
+<section class="hero" aria-labelledby="hero-title">
+	<div class="container">
+		<div class="hero__layout">
+			<div class="hero__intro stack">
+				<p class="status" data-reveal>Now available for new projects</p>
+				<p class="eyebrow hero__eyebrow" data-reveal>Video Editing &amp; colour grading</p>
+				<h1 id="hero-title" class="t-display hero__title" data-reveal>I want to help your footage land</h1>
+				<p class="lede measure" data-reveal>
+					You've worked hard to capture something worth seeing.{' '}
+					<strong class="hero__emphasis">Now it needs an edit that does it justice.</strong>
+				</p>
+				<div class="actions hero__actions" data-reveal>
+					<a href={enquiryMailto} class="btn" data-contact-open>Start a project</a>
+					<a href="#selected-works" class="link">See selected work <span aria-hidden="true">↓</span></a>
+				</div>
+			</div>
+
+			<figure class="stack hero__reel" data-reveal>
+				<VideoEmbed
+					id="FumGed0W4lI"
+					title="Video Editor Demo Reel 2026"
+					grow
+				/>
+				<figcaption class="caption">
+					<span class="eyebrow hero__reel-label">Showreel 2026</span>
+					Video editing and colour grading highlights
+				</figcaption>
+			</figure>
+		</div>
+
+		<dl class="grid grid--4 specs" data-reveal>
+			{
+				specs.map((spec) => (
+					<div class="specs__item">
+						<dt class="eyebrow">{spec.label}</dt>
+						<dd>
+							{spec.value}
+							{spec.footnote && (
+								<a href="#turnaround-note" class="specs__mark" aria-label="See turnaround note">
+									*
+								</a>
+							)}
+						</dd>
+					</div>
+				))
+			}
+		</dl>
+		<p id="turnaround-note" class="caption specs__footnote" data-reveal>*Delivery times subject to project complexity</p>
+	</div>
+</section>
+
+<style>
+	.hero {
+		padding-block: var(--space-8) var(--space-6);
+		text-align: var(--align);
+	}
+
+	@media (min-width: 48rem) {
+		.hero {
+			padding-block: var(--space-12) var(--space-8);
+		}
+	}
+
+	/* Stacked (copy, then reel) below lg; side by side from lg up */
+	.hero__layout {
+		display: grid;
+		gap: var(--space-6);
+	}
+
+	.hero__intro {
+		--stack-gap: var(--space-3);
+		align-items: center;
+	}
+
+	.hero__reel {
+		--stack-gap: var(--space-2);
+		width: 100%;
+		max-width: 48rem;
+		margin-inline: auto;
+	}
+
+	.hero__reel-label {
+		display: inline;
+		margin-right: var(--space-1);
+		color: var(--color-text);
+	}
+
+	@media (min-width: 64rem) {
+		/* Headline steps down one size to share the row with the reel */
+		.hero__title {
+			font-size: var(--text-4xl);
+		}
+
+		/* Reel gets the larger share of the row */
+		.hero__layout {
+			grid-template-columns: 5fr 7fr;
+			align-items: center;
+			gap: var(--space-6);
+		}
+
+		.hero__intro {
+			align-items: flex-start;
+		}
+
+		.hero__reel {
+			max-width: none;
+		}
+	}
+
+	.hero__eyebrow {
+		margin-top: var(--space-3);
+	}
+
+	.hero__title {
+		max-width: 16ch;
+		margin-top: calc(var(--space-2) * -1); /* tighten eyebrow → headline */
+	}
+
+	.hero__emphasis {
+		color: var(--color-text);
+	}
+
+	.hero__actions {
+		margin-top: var(--space-2);
+	}
+
+	.specs {
+		margin-top: var(--space-8);
+	}
+
+	.specs__item dd {
+		margin-top: var(--space-half);
+	}
+
+	.specs__mark {
+		text-decoration: none;
+		color: var(--color-text-muted);
+	}
+
+	.specs__footnote {
+		margin-top: var(--space-3);
+	}
+</style>

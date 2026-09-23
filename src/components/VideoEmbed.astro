@@ -1,0 +1,88 @@
+---
+/**
+ * YouTube embed that autoplays muted as the page loads, with YouTube's own
+ * controls (including fullscreen).
+ *
+ * - The player loads straight away (not on scroll), so videos further down
+ *   the page are already playing, past YouTube's start-up overlays, by the
+ *   time visitors reach them.
+ * - Visitors who prefer reduced motion get the same player without autoplay.
+ * - `grow`: gently enlarges the player on hover (used for the hero reel).
+ */
+interface Props {
+	id: string;
+	title: string;
+	grow?: boolean;
+}
+
+const { id, title, grow = false } = Astro.props;
+
+const embed = (autoplay: boolean) => {
+	const params = new URLSearchParams({ rel: '0', playsinline: '1' });
+	if (autoplay) {
+		params.set('autoplay', '1');
+		params.set('mute', '1'); // browsers only allow autoplay when muted
+	}
+	return `https://www.youtube.com/embed/${id}?${params}`;
+};
+---
+
+<div class:list={['video', { 'video--grow': grow }]}>
+	<iframe
+		data-src-autoplay={embed(true)}
+		data-src-still={embed(false)}
+		title={title}
+		allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
+		referrerpolicy="strict-origin-when-cross-origin"
+		allowfullscreen></iframe>
+	<noscript>
+		<iframe
+			src={embed(false)}
+			title={title}
+			allow="encrypted-media; picture-in-picture; fullscreen"
+			referrerpolicy="strict-origin-when-cross-origin"
+			allowfullscreen></iframe>
+	</noscript>
+</div>
+
+<script>
+	// Set each player's src as soon as the page is parsed: autoplaying (muted)
+	// unless the visitor has asked for reduced motion.
+	const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+	document.querySelectorAll<HTMLIFrameElement>('.video iframe[data-src-autoplay]').forEach((iframe) => {
+		iframe.src = (reduceMotion ? iframe.dataset.srcStill : iframe.dataset.srcAutoplay) ?? '';
+	});
+</script>
+
+<style>
+	.video {
+		position: relative;
+		aspect-ratio: 16 / 9;
+		background: var(--color-surface);
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius);
+		overflow: hidden;
+	}
+
+	.video iframe {
+		position: absolute;
+		inset: 0;
+		width: 100%;
+		height: 100%;
+		border: 0;
+	}
+
+	/* Hover grow, only on devices with a real pointer */
+	@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+		.video--grow {
+			transition:
+				scale 0.6s var(--ease-in-out),
+				box-shadow 0.6s var(--ease-in-out);
+		}
+
+		.video--grow:hover {
+			scale: 1.05;
+			box-shadow: 0 var(--space-3) var(--space-8) rgb(0 0 0 / 0.5);
+		}
+	}
+</style>

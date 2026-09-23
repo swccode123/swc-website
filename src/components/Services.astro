@@ -1,0 +1,24 @@
+---
+const services = [
+	{ title: 'Corporate video', text: 'Internal comms, brand films, training content, event coverage' },
+	{ title: 'Commercial', text: 'Advertising, product launches, social content, TVC delivery' },
+	{ title: 'Film Projects', text: 'Film editing, title generation, Fusion FX, and colour grading.' },
+];
+---
+
+<section class="section section--alt" id="services" aria-labelledby="services-title">
+	<div class="container">
+		<h2 id="services-title" class="t-headline section-header" data-reveal>Services</h2>
+
+		<ul class="grid grid--3 list-reset" role="list">
+			{
+				services.map((service) => (
+					<li class="card stack" data-reveal>
+						<h3 class="t-heading">{service.title}</h3>
+						<p class="muted">{service.text}</p>
+					</li>
+				))
+			}
+		</ul>
+	</div>
+</section>

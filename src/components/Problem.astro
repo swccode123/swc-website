@@ -1,0 +1,40 @@
+---
+const points = [
+	{
+		label: 'External problem',
+		text: 'You have footage and a deadline with no time to spend on a mediocre back-and-forth.',
+	},
+	{
+		label: 'Internal problem',
+		text: "You're worried the final cut won't capture what you intended, or won't convert.",
+	},
+	{
+		label: 'The real question',
+		text: 'Does your editor actually understand storytelling, or just the software?',
+	},
+];
+---
+
+<section class="section section--alt" aria-labelledby="problem-title">
+	<div class="container">
+		<div class="section-header stack">
+			<h2 id="problem-title" class="t-headline" data-reveal>Raw footage doesn't tell stories. Editors do.</h2>
+			<p class="lede measure" data-reveal>
+				Most clients hand over their footage and hope for the best, only to get back a cut that feels flat,
+				too long, or just off. You know what your project should feel like. You need an editor who gets it
+				too.
+			</p>
+		</div>
+
+		<ul class="grid grid--3 list-reset" role="list">
+			{
+				points.map((point) => (
+					<li class="stack" data-reveal>
+						<h3 class="eyebrow">{point.label}</h3>
+						<p>{point.text}</p>
+					</li>
+				))
+			}
+		</ul>
+	</div>
+</section>

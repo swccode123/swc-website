@@ -1,0 +1,81 @@
+---
+import { Image } from 'astro:assets';
+import profilePic from '../assets/profile.jpeg';
+
+const tags = ['DaVinci Resolve', '4K / BRAW / RAW', 'Fusion FX', 'Colour Grading', 'Brisbane + Remote'];
+---
+
+<section class="section" id="about" aria-labelledby="about-title">
+	<div class="container about">
+		<Image
+			src={profilePic}
+			alt="Black-and-white portrait of Sebastian Wells Chavez smiling outdoors, wearing glasses and a dark top"
+			widths={[320, 480, 640]}
+			sizes="(min-width: 64rem) 26rem, 20rem"
+			class="about__media"
+			data-reveal
+		/>
+
+		<div class="stack about__content">
+			<p class="eyebrow" data-reveal>About me</p>
+			<h2 id="about-title" class="t-headline" data-reveal>I'm a filmmaker who edits, not just an editor</h2>
+			<div class="stack measure muted" data-reveal>
+				<p>
+					I'm a filmmaker first, editor second. I understand that editing isn't just cutting clips, it's
+					finding the story inside the footage.
+				</p>
+				<p>
+					With a background in film and a specialisation in DaVinci Resolve, I work with corporate clients,
+					commercial producers, and filmmakers who need more than a fast turnaround. They need someone who
+					cares how it lands.
+				</p>
+			</div>
+
+			<ul class="tags list-reset" role="list" data-reveal aria-label="Skills and tools">
+				{tags.map((tag) => <li>{tag}</li>)}
+			</ul>
+		</div>
+	</div>
+</section>
+
+<style>
+	.about {
+		display: grid;
+		gap: var(--space-6);
+	}
+
+	.about__media {
+		width: 100%;
+		max-width: 20rem;
+		height: auto;
+		aspect-ratio: 1;
+		margin-inline: auto;
+		object-fit: cover;
+		background: var(--color-surface); /* shows while loading */
+		border-radius: var(--radius);
+	}
+
+	.about__content {
+		--stack-gap: var(--space-3);
+	}
+
+	.about__content .eyebrow {
+		margin-bottom: calc(var(--space-1) * -1); /* tighten eyebrow → headline */
+	}
+
+	.about__content .tags {
+		margin-top: var(--space-2);
+	}
+
+	@media (min-width: 64rem) {
+		.about {
+			grid-template-columns: 5fr 7fr;
+			align-items: center;
+			gap: var(--space-10);
+		}
+
+		.about__media {
+			max-width: none;
+		}
+	}
+</style>

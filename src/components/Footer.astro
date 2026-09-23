@@ -1,0 +1,189 @@
+---
+import { email, enquiryMailto as mailto, social } from '../data/site';
+
+const columns = [
+	{
+		heading: 'Services',
+		items: [
+			{ label: 'Corporate Video' },
+			{ label: 'Commercial' },
+			{ label: 'Documentary' },
+			{ label: 'Film Projects' },
+		],
+	},
+	{
+		heading: 'Contact',
+		items: [
+			{ label: 'Email', href: mailto },
+			{ label: 'LinkedIn', href: social.linkedin, external: true },
+			{ label: 'YouTube', href: social.youtube, external: true },
+		],
+	},
+	{
+		heading: 'Portfolio',
+		items: [
+			{ label: 'Selected work', href: '#selected-works' },
+			{ label: 'LinkedIn', href: social.linkedin, external: true },
+			{ label: 'Instagram', href: social.instagram, external: true },
+			{ label: 'YouTube', href: social.youtube, external: true },
+		],
+	},
+];
+
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+	<div class="container">
+		<div class="site-footer__top">
+			<div class="stack site-footer__brand">
+				<p class="t-heading">Sebastian Wells Chavez</p>
+				<a href={mailto} class="link site-footer__email">{email}</a>
+				<div class="actions">
+					<a href={mailto} class="btn" data-contact-open>Start a project</a>
+				</div>
+			</div>
+
+			<nav class="site-footer__columns" aria-label="Footer">
+				{
+					columns.map((col) => (
+						<div class="stack site-footer__column">
+							<h2 class="eyebrow">{col.heading}</h2>
+							<ul class="list-reset site-footer__list" role="list">
+								{col.items.map((item) =>
+									item.href ? (
+										<li>
+											<a
+												href={item.href}
+												class="site-footer__link"
+												{...(item.external && { target: '_blank', rel: 'noopener noreferrer' })}
+											>
+												{item.label}
+												{item.external && <span class="visually-hidden"> (opens in new tab)</span>}
+											</a>
+										</li>
+									) : (
+										<li class="site-footer__item">{item.label}</li>
+									),
+								)}
+							</ul>
+						</div>
+					))
+				}
+			</nav>
+		</div>
+
+		<p class="caption ruled site-footer__legal">&copy; {year} Sebastian Wells Chavez</p>
+	</div>
+</footer>
+
+<style>
+	/*
+	 * Spacing scales up with the viewport. Every link keeps a 44px tap target,
+	 * with an 8px gap between rows so neighbouring targets never touch.
+	 */
+	.site-footer {
+		padding-block: var(--space-10) var(--space-6);
+		border-top: 1px solid var(--color-border);
+		text-align: var(--align);
+	}
+
+	.site-footer__top {
+		display: grid;
+		gap: var(--space-8);
+	}
+
+	.site-footer__brand {
+		--stack-gap: var(--space-3);
+		align-items: center;
+	}
+
+	.site-footer__brand .actions {
+		margin-top: var(--space-1);
+	}
+
+	.site-footer__email {
+		color: var(--color-text-muted);
+		overflow-wrap: anywhere;
+	}
+
+	.site-footer__columns {
+		display: grid;
+		gap: var(--space-8) var(--space-4);
+	}
+
+	.site-footer__column {
+		--stack-gap: var(--space-2);
+	}
+
+	.site-footer__list {
+		display: grid;
+		gap: var(--space-1);
+	}
+
+	/* Links get a full tap-target height; plain items match their rhythm */
+	.site-footer__link,
+	.site-footer__item {
+		display: flex;
+		align-items: center;
+		justify-content: var(--align);
+		min-height: var(--tap-target);
+	}
+
+	.site-footer__link {
+		text-decoration: none;
+	}
+
+	.site-footer__link:hover {
+		text-decoration: underline;
+	}
+
+	.site-footer__item {
+		color: var(--color-text-muted);
+	}
+
+	.site-footer__legal {
+		margin-top: var(--space-10);
+		padding-top: var(--space-4);
+	}
+
+	@media (min-width: 30rem) {
+		.site-footer__columns {
+			grid-template-columns: repeat(3, minmax(0, 1fr));
+		}
+	}
+
+	@media (min-width: 48rem) {
+		.site-footer {
+			padding-block: var(--space-12) var(--space-8);
+		}
+
+		.site-footer__top {
+			gap: var(--space-10);
+		}
+
+		.site-footer__legal {
+			margin-top: var(--space-12);
+			padding-top: var(--space-5);
+		}
+	}
+
+	@media (min-width: 64rem) {
+		.site-footer {
+			padding-block: var(--space-16) var(--space-8);
+		}
+
+		.site-footer__top {
+			grid-template-columns: 1fr 2fr;
+			gap: var(--space-12);
+		}
+
+		.site-footer__brand {
+			align-items: flex-start;
+		}
+
+		.site-footer__legal {
+			margin-top: var(--space-16);
+		}
+	}
+</style>

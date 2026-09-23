@@ -1,0 +1,258 @@
+---
+/**
+ * Primary site header.
+ *
+ * Add pages to `links` as the site grows. Below 768px they collapse behind a
+ * hamburger toggle; from 768px up they sit inline. The "Start a project" CTA
+ * stays visible in the bar at every width. The toggle only renders once
+ * there's at least one link to put in it.
+ */
+import { enquiryMailto } from '../data/site';
+
+interface NavLink {
+	label: string;
+	href: string;
+}
+
+const links: NavLink[] = [
+	// { label: 'Work', href: '/#selected-works' },
+	// { label: 'About', href: '/#about' },
+];
+
+const currentPath = Astro.url.pathname;
+---
+
+<header class="site-header" data-site-header>
+	<div class="container site-header__inner">
+		<a href="/" class="logo" aria-label="SWC — home">SWC</a>
+
+		<nav class="site-nav" aria-label="Primary">
+			{
+				links.length > 0 && (
+					<>
+						<button
+							type="button"
+							class="site-nav__toggle"
+							aria-expanded="false"
+							aria-controls="site-nav-menu"
+							hidden
+						>
+							<span class="site-nav__icon" aria-hidden="true" />
+							<span class="visually-hidden">Menu</span>
+						</button>
+						<ul id="site-nav-menu" class="site-nav__menu list-reset" role="list">
+							{links.map((link) => (
+								<li>
+									<a
+										href={link.href}
+										class="site-nav__link"
+										aria-current={currentPath === link.href ? 'page' : undefined}
+									>
+										{link.label}
+									</a>
+								</li>
+							))}
+						</ul>
+					</>
+				)
+			}
+			<a href={enquiryMailto} class="btn btn--sm" data-contact-open>Start a project</a>
+		</nav>
+	</div>
+</header>
+
+<script>
+	const header = document.querySelector<HTMLElement>('[data-site-header]');
+	const toggle = header?.querySelector<HTMLButtonElement>('.site-nav__toggle');
+	const menu = header?.querySelector<HTMLElement>('.site-nav__menu');
+
+	if (header && toggle && menu) {
+		const desktop = window.matchMedia('(min-width: 48rem)');
+
+		const setOpen = (open: boolean) => {
+			toggle.setAttribute('aria-expanded', String(open));
+			header.toggleAttribute('data-open', open);
+		};
+
+		// Enhance: collapse the menu behind the toggle (links stay visible without JS)
+		header.setAttribute('data-enhanced', '');
+		toggle.hidden = false;
+
+		toggle.addEventListener('click', () => {
+			setOpen(toggle.getAttribute('aria-expanded') !== 'true');
+		});
+
+		menu.addEventListener('click', (event) => {
+			if ((event.target as HTMLElement).closest('a')) setOpen(false);
+		});
+
+		document.addEventListener('keydown', (event) => {
+			if (event.key === 'Escape' && header.hasAttribute('data-open')) {
+				setOpen(false);
+				toggle.focus();
+			}
+		});
+
+		desktop.addEventListener('change', () => setOpen(false));
+	}
+</script>
+
+<style>
+	.site-header {
+		position: sticky;
+		top: 0;
+		z-index: 10;
+		background: color-mix(in srgb, var(--color-bg) 92%, transparent);
+		backdrop-filter: blur(8px);
+	}
+
+	.site-header__inner {
+		position: relative;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: var(--space-2);
+		min-height: var(--header-height);
+	}
+
+	.logo {
+		display: inline-flex;
+		align-items: center;
+		min-height: var(--tap-target);
+		font-family: var(--font-display);
+		font-size: var(--text-xl);
+		letter-spacing: 0.08em;
+		text-decoration: none;
+	}
+
+	.site-nav {
+		display: flex;
+		align-items: center;
+		gap: var(--space-1);
+	}
+
+	/* ---- Mobile (base) ---- */
+
+	.site-nav__toggle {
+		display: inline-grid;
+		place-items: center;
+		order: 2; /* hamburger sits at the far right, after the CTA */
+		width: var(--tap-target);
+		height: var(--tap-target);
+		padding: 0;
+		border: 0;
+		background: none;
+		color: inherit;
+		cursor: pointer;
+	}
+
+	.site-nav__toggle[hidden] {
+		display: none;
+	}
+
+	/* Three-bar icon that morphs into a cross when open */
+	.site-nav__icon,
+	.site-nav__icon::before,
+	.site-nav__icon::after {
+		display: block;
+		width: var(--space-3);
+		height: 2px;
+		background: currentColor;
+		transition: transform 0.2s, background-color 0.2s;
+	}
+
+	.site-nav__icon {
+		position: relative;
+	}
+
+	.site-nav__icon::before,
+	.site-nav__icon::after {
+		content: '';
+		position: absolute;
+		left: 0;
+	}
+
+	.site-nav__icon::before {
+		transform: translateY(-7px);
+	}
+
+	.site-nav__icon::after {
+		transform: translateY(7px);
+	}
+
+	[aria-expanded='true'] .site-nav__icon {
+		background: transparent;
+	}
+
+	[aria-expanded='true'] .site-nav__icon::before {
+		transform: rotate(45deg);
+	}
+
+	[aria-expanded='true'] .site-nav__icon::after {
+		transform: rotate(-45deg);
+	}
+
+	/* Without JS the links simply sit inline beside the CTA */
+	.site-nav__menu {
+		display: flex;
+		gap: var(--space-2);
+	}
+
+	/* Dropdown panel: full-width under the header bar */
+	[data-enhanced] .site-nav__menu {
+		display: none;
+		position: absolute;
+		top: 100%;
+		left: 0;
+		right: 0;
+		padding: var(--space-1) var(--gutter) var(--space-3);
+		background: var(--color-bg);
+		border-bottom: 1px solid var(--color-border);
+		text-align: center;
+	}
+
+	[data-open] .site-nav__menu {
+		display: block;
+	}
+
+	.site-nav__link {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		min-height: var(--tap-target);
+		font-size: var(--text-lg);
+		text-decoration: none;
+	}
+
+	.site-nav__link:hover,
+	.site-nav__link[aria-current='page'] {
+		text-decoration: underline;
+	}
+
+	/* ---- md and up: inline nav, no toggle ---- */
+
+	@media (min-width: 48rem) {
+		.site-nav {
+			gap: var(--space-4);
+		}
+
+		.site-nav__toggle,
+		.site-nav__toggle:not([hidden]) {
+			display: none;
+		}
+
+		.site-nav__menu,
+		[data-enhanced] .site-nav__menu {
+			display: flex;
+			position: static;
+			gap: var(--space-4);
+			padding: 0;
+			background: none;
+			border: 0;
+		}
+
+		.site-nav__link {
+			font-size: var(--text-sm);
+		}
+	}
+</style>

@@ -1,0 +1,66 @@
+---
+import { enquiryMailto } from '../data/site';
+---
+
+<section class="section" id="contact" aria-labelledby="closing-title">
+	<div class="container">
+		<div class="stack closing__statement">
+			<h2 id="closing-title" class="t-statement closing__headline" data-reveal>
+				<strong>Your reel stops the scroll. Your client comes back. Your story gets told right.</strong>
+			</h2>
+			<p class="lede" data-reveal>Footage without an editor is just data. Don't let it stay that way.</p>
+		</div>
+
+		<div class="stack closing__contact" data-reveal>
+			<p class="eyebrow">Contact</p>
+			<h3 class="t-title">Let's make something worth watching</h3>
+			<p class="status">Currently available for new projects. Typically respond within one business day.</p>
+			<div class="actions">
+				<a href={enquiryMailto} class="btn" data-contact-open>Start a project</a>
+			</div>
+		</div>
+	</div>
+</section>
+
+<style>
+	.closing__statement {
+		--stack-gap: var(--space-3);
+	}
+
+	.closing__headline {
+		max-width: 22ch;
+		margin-inline: var(--measure-inset);
+	}
+
+	.closing__headline strong {
+		font-weight: var(--weight-bold);
+	}
+
+	.closing__contact {
+		--stack-gap: var(--space-3);
+		align-items: center;
+		margin-top: var(--space-10);
+	}
+
+	.closing__contact .t-title {
+		margin-bottom: var(--space-1);
+	}
+
+	.closing__contact .actions {
+		margin-top: var(--space-3);
+	}
+
+	@media (min-width: 48rem) {
+		.closing__contact {
+			--stack-gap: var(--space-4);
+			margin-top: var(--space-12);
+		}
+	}
+
+	@media (min-width: 64rem) {
+		.closing__contact {
+			align-items: flex-start;
+			margin-top: var(--space-16);
+		}
+	}
+</style>
