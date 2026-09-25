@@ -11,7 +11,6 @@ const steps = [
 	{
 		title: 'You receive a final cut',
 		text: "Delivered in your format, on time. A cut you're genuinely proud to share.",
-		emphasis: true,
 	},
 ];
 ---
@@ -27,7 +26,9 @@ const steps = [
 						<span class="t-statement step__number" aria-hidden="true">
 							{String(i + 1).padStart(2, '0')}
 						</span>
-						<h3 class="t-heading">{step.emphasis ? <strong>{step.title}</strong> : step.title}</h3>
+						<h3 class="t-heading">
+							<strong>{step.title}</strong>
+						</h3>
 						<p class="muted">{step.text}</p>
 					</li>
 				))
