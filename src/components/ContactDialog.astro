@@ -67,6 +67,10 @@ const messages = {
 					></textarea>
 				</div>
 
+				<p class="caption contact__privacy contact__field--full">
+					Your details are used only to respond to your enquiry and are never shared.
+				</p>
+
 				<p class="contact__error contact__field--full" role="alert" data-contact-error hidden>
 					{messages.error}
 				</p>
@@ -303,6 +307,12 @@ const messages = {
 	.contact__field input:user-invalid,
 	.contact__field textarea:user-invalid {
 		border-color: var(--color-error);
+	}
+
+	/* Tucks up under the fields as a quiet aside */
+	.contact__privacy {
+		margin-top: calc(var(--space-2) * -1);
+		font-size: var(--text-xs);
 	}
 
 	.contact__submit {

@@ -5,22 +5,53 @@ import Hero from '../components/Hero.astro';
 import Problem from '../components/Problem.astro';
 import About from '../components/About.astro';
 import HowItWorks from '../components/HowItWorks.astro';
+import Testimonials from '../components/Testimonials.astro';
 import Services from '../components/Services.astro';
 import SelectedWorks from '../components/SelectedWorks.astro';
 import ClosingCta from '../components/ClosingCta.astro';
 import Footer from '../components/Footer.astro';
+import profilePic from '../assets/profile.jpeg';
+import { email, social } from '../data/site';
+
+const description =
+	'Brisbane video editor and colourist specialising in DaVinci Resolve. Story-first editing and colour grading for corporate, commercial, and film projects.';
+
+// Structured data so search engines can show this as a Brisbane business
+const business = {
+	'@context': 'https://schema.org',
+	'@type': 'ProfessionalService',
+	'@id': new URL('/#business', Astro.site).href,
+	name: 'Sebastian Wells Chavez',
+	alternateName: 'SWC',
+	description,
+	url: new URL('/', Astro.site).href,
+	email,
+	image: new URL(profilePic.src, Astro.site).href,
+	founder: { '@type': 'Person', name: 'Sebastian Wells Chavez', jobTitle: 'Video Editor and Colourist' },
+	address: { '@type': 'PostalAddress', addressLocality: 'Brisbane', addressRegion: 'QLD', addressCountry: 'AU' },
+	areaServed: {
+		'@type': 'City',
+		name: 'Brisbane',
+		containedInPlace: { '@type': 'State', name: 'Queensland' },
+	},
+	serviceType: ['Video editing', 'Colour grading'],
+	knowsAbout: ['DaVinci Resolve', 'Video editing', 'Colour grading', 'Fusion visual effects'],
+	sameAs: Object.values(social),
+};
 ---
 
 <BaseLayout
-	title="SWC — Video Editing & Colour Grading | Sebastian Wells Chavez"
-	description="Brisbane-based video editor and colourist specialising in DaVinci Resolve. Corporate, commercial, and film projects — Brisbane and remote."
+	title="Sebastian Wells Chavez | Video Editor & Colorist"
+	description={description}
 >
+	<script slot="head" type="application/ld+json" is:inline set:html={JSON.stringify(business)} />
 	<Header />
 	<main id="main">
 		<Hero />
 		<Problem />
 		<About />
 		<HowItWorks />
+		<Testimonials />
 		<Services />
 		<SelectedWorks />
 		<ClosingCta />
